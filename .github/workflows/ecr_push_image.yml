@@ -1,29 +1,16 @@
-# This is a basic workflow to help you get started with Actions
-
-name: Deploy to ECR
-
+name: Deploy images to ECR
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the dev branch
   push:
-    branches: [ dev ]
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [ master ]
   workflow_dispatch:
-  
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    name: Build Image
+  build:    
+    name: Build Docker Images
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      # Runs a single command using the runners shell
+    steps:     
+      - uses: actions/checkout@v3      
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -33,21 +20,19 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           AWS_SESSION_TOKEN: ${{secrets.AWS_SESSION_TOKEN}}
           AWS_REGION: us-east-1
-          
       - name: Build, Test, Tag and push cats image to Amazon ECR
         env: 
           ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
           ECR_REPOSITORY: catdogs-repo
-          IMAGE_TAG: catimagev1
-          
+          IMAGE_TAG: cat_imagev0.1
       # Runs a set of commands
         run: |
-          cd catsdogs-cloud9/cats/
+          cd cats/
           ls -ltra
           # Build the docker image 
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           # Run the container to test
-          docker run -d -p 8080:80 --name catdogs-repo $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker run -d -p 8080:80 --name catdogs-repo-cats $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           # list all the containers
           docker ps
           echo " sleep 10 seconds for container to run"
@@ -55,20 +40,19 @@ jobs:
           # Push the docker image to ECR repository
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           
-      - name: Build, Test, Tag and push cats image to Amazon ECR
+      - name: Build, Test, Tag and push dogs image to Amazon ECR
         env: 
           ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
           ECR_REPOSITORY: catdogs-repo
-          IMAGE_TAG: dogimagev1
-          
+          IMAGE_TAG: dog_imagev0.1
       # Runs a set of commands
         run: |
-          cd catsdogs-cloud9/cats/
+          cd dogs/
           ls -ltra
           # Build the docker image 
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           # Run the container to test
-          docker run -d -p 8081:80 --name catdogs-repo $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker run -d -p 8081:80 --name catdogs-repo-dogs $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           # list all the containers
           docker ps
           echo " sleep 10 seconds for container to run"
