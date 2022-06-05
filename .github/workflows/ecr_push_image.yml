@@ -47,7 +47,7 @@ jobs:
           IMAGE_TAG: dog_imagev0.1
       # Runs a set of commands
         run: |
-          cd catsdogs-cloud9/cats/
+          cd catsdogs-cloud9/dogs/
           ls -ltra
           # Build the docker image 
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
